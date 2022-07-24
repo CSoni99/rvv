@@ -18,9 +18,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
-    ArrayList<data> arr;
-    DatabaseReference dbref;
-    CustomAdapter c;
+    DatabaseReference database;
+    CustomAdapter myAdapter;
+    ArrayList<data> list;
+
+//    RecyclerView recyclerView;
+//    ArrayList<data> arr;
+//    DatabaseReference dbref;
+//    CustomAdapter c;
 //    String [] arr = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8", "Item 9"};
 
     @Override
@@ -28,20 +33,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
+        database = FirebaseDatabase.getInstance().getReference("Users");
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        c = new CustomAdapter(arr);
-        recyclerView.setAdapter(c);
-        dbref = FirebaseDatabase.getInstance().getReference("couns");
-        arr = new ArrayList<>();
-        dbref.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
+
+        list = new ArrayList<>();
+        myAdapter = new CustomAdapter(list);
+        recyclerView.setAdapter(myAdapter);
+
+        database.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot snap : snapshot.getChildren() ){
-                    data dta = snap.getValue(data.class);
-                    arr.add(dta);
+
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+
+                    data user = dataSnapshot.getValue(data.class);
+                    list.add(user);
+
+
                 }
-                c.notifyDataSetChanged();
+                myAdapter.notifyDataSetChanged();
+
             }
 
             @Override
@@ -49,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
 
 
     }
